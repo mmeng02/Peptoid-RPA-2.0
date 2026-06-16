@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+plots/*.png
+screen_score_all.png
+screening_score_prev_ff.png
+CMC_*_Plot.png

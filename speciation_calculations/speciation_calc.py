@@ -169,7 +169,7 @@ def get_species_counts(chain_sequence,dw=1e-10,max_conc=0.99,tmah_conc=0.0238,pr
 
 def plot_deprotonation_fraction():
     plt.figure()
-    plt.style.use("../styles.mplstyle")
+    plt.style.use("../styles/academic.mplstyle")
     chain_sequences = ["A"*i+"G"*(20-i) for i in range(20)][::2]
     chain_sequences = ["A"*10+"G"*10]
     for chain_sequence in chain_sequences:
@@ -212,7 +212,7 @@ def plot_deprotonation_fraction():
 
 def plot_deprotonation_fraction2():
     plt.figure()
-    plt.style.use("../styles.mplstyle")
+    plt.style.use("../styles/academic.mplstyle")
     chain_sequences = ["A"*i+"G"*(20-i) for i in range(20)][::2]
 
     for chain_sequence in chain_sequences:
@@ -261,7 +261,7 @@ def plot_deprotonation_fraction2():
 def pH_calculation():
     # pH
     plt.figure()
-    plt.style.use("../styles.mplstyle")
+    plt.style.use("../styles/academic.mplstyle")
     chain_sequences = ["A"*10+"G"*10]
     for chain_sequence in chain_sequences:
         for tmah_conc in [0.01, 0.0238, 0.05, 0.1]:
@@ -331,13 +331,13 @@ def main():
     font_manager.fontManager.addfont("/Users/MichaelMeng1/Documents/Graduate School/Spring26/cmu_serif_roman.ttf")
     prop = font_manager.FontProperties(fname="/Users/MichaelMeng1/Documents/Graduate School/Spring26/cmu_serif_roman.ttf")
     font_name = prop.get_name()
-    #plt.style.use("styles.mplstyle")
+    #plt.style.use("styles/academic.mplstyle")
     rcParams['font.family'] = 'serif'
     rcParams['font.serif'] = [font_name]
     plot_deprotonation_fraction2()
     exit()
     plt.figure()
-    plt.style.use("../styles.mplstyle")
+    plt.style.use("../styles/academic.mplstyle")
     chain_sequences = ["A"*10+"G"*10]
     for chain_sequence in chain_sequences:
         for tmah_conc in [0.0238]:
@@ -406,4 +406,3 @@ def main():
     plt.savefig("pH_v_polywt_dw.png")
     plt.show()
 main()
-

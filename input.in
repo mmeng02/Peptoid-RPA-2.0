@@ -1,0 +1,10 @@
+# RPA acid/base input
+# water_model accepts: single, six-water, 6-water, or clustered
+# Use one sequence or comma-separated sequences.
+# Example: chain_sequences = AGGGGAGGGGAGGGGAGGGG, AGAGAGAGAGAGAGAGAGAG
+chain_sequences = GGAGGGAGGGAGGAGGAGGA,GGGGGAGGGAGGAGGAGGAA,GGGGGGGGAGGAGGAGGAAA,GGGGGGGGGGAGGAGGAAAA,GGGGGGGGGGGGAGGAAAAA,GGGGGGGGGGGGGGAAAAAA
+max_conc = 0.2
+tmah_conc = 0.0238
+water_model = six-water
+output_file = initial_spinodals_fA0.3.txt
+stop_at_init_spinodal = true
