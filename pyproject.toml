@@ -1,0 +1,13 @@
+[project]
+name = "rpa-acid-base"
+version = "0.1.0"
+description = "RPA acid/base stability calculations for polypeptoid systems"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+]
+
+[project.scripts]
+rpa-acid-base = "rpa_acid_base.engine:cli"
