@@ -10,7 +10,7 @@ RESULTS_DIR = Path("results/rpa")
 
 WATER_MODELS = {
     "single": {
-        "force_field_dir": Path("force_fields/current"),
+        "force_field_dir": Path("force_fields/single_water"),
         "output_file": "OUT.txt",
         "seq": "GGAGGGGAGGGGAGGGGAGG",
         "chain_sequences": ["AGGGGAGGGGAGGGGAGGGG"],
@@ -24,8 +24,23 @@ WATER_MODELS = {
         "solvent_radius": 0.31,
         "glup_charge_fully_protonated": 0,
     },
+    "four-water": {
+        "force_field_dir": Path("force_fields/four_waters"),
+        "output_file": "RPA_4clustered_water.txt",
+        "seq": "GGAGGGGAGGGGAGGGGAGG",
+        "chain_sequences": ["AGGGGAGGGGAGGGGAGGGG"],
+        "species_kwargs": {"dw": 1e-7, "max_conc": 0.2, "precision": 0.0005},
+        "species_beadtypes": [['HOH', 0.60, 0], ['ARO', 0.75, 0], ['GLU', 0.75, -1], ['TMA', 0.60, 1], ['OH', 0.60, -1]],
+        "hoh_weight": 18.01528 * 4,
+        "oh_weight": 17.007 + 3 * 18.01528,
+        "h3o_weight": 19.0232 + 3 * 18.01528,
+        "hoh_volume": 0.03001009271548933 * 4,
+        "ion_volume": 0.03001009271548933 * 4,
+        "solvent_radius": 0.60,
+        "glup_charge_fully_protonated": 0,
+    },
     "six-water": {
-        "force_field_dir": Path("force_fields/clustered_water"),
+        "force_field_dir": Path("force_fields/six_waters"),
         "output_file": "RPA_clustered_water.txt",
         "seq": "AAAAGGGGGGGGGGGGGGGG",
         "chain_sequences": ["AGAGAGAGAGAGAGAGAGAG"],
@@ -54,8 +69,10 @@ def normalize_water_model(value):
         "6-water": "six-water",
         "six": "six-water",
         "6": "six-water",
-        "clustered": "six-water",
-        "clustered-water": "six-water",
+        "four-water": "four-water",
+        "4-water": "four-water",
+        "four": "four-water",
+        "4": "four-water"
     }
     if model not in aliases:
         valid = ", ".join(WATER_MODELS)
@@ -362,8 +379,8 @@ def choose_even_cuts(indices, x):
     return res
 
 
-def apply_six_water_clustering(DS):
-    n_h2o_per_cluster = 6
+def apply_water_clustering(DS,n_w_per_cluster=6):
+    n_h2o_per_cluster = n_w_per_cluster
     for key in list(DS.keys()):
         if len(key) > 2: # multiple chain types
             # [n_chain1, n_chain2, n_h2o, n_tma, n_oh, n_h3o]
@@ -423,13 +440,18 @@ def main(input_file="input.in", water_model_override=None):
     first_spindoals = []
     output_data = []
     spinodal_rows = []
+    n_waters_per_cluster = 1
     for chain_sequence in chain_sequences:
         chain_len = len(chain_sequence)
         aro_comp_fraction = sum([1 if i == 'A' else 0 for i in chain_sequence])/len(chain_sequence)
         glu_comp_fraction = 1-aro_comp_fraction
         DS = get_species_counts(chain_sequence,water_model=water_model,**species_kwargs)
         if water_model == "six-water":
-            apply_six_water_clustering(DS)
+            apply_water_clustering(DS,n_w_per_cluster=6)
+            n_waters_per_cluster = 6
+        elif water_model == "four-water":
+            apply_water_clustering(DS,n_w_per_cluster=4)
+            n_waters_per_cluster = 4
         phase_transitions = {}
         stability_data = []
         RPA_OBJECTS = {}
@@ -445,7 +467,7 @@ def main(input_file="input.in", water_model_override=None):
                 #    chain_mol_beads = [1 if i =='A' else 3 for i in chain_sequence]
                 res = [data_col for data_col in species_counts_data.values()] # [n_chain1, nHOH, nTMA, nOH]
                 print("Running 100% deprotonated peptoid chains.")
-                RPA_OBJECTS[key] = RPA.RPAsystem()
+                RPA_OBJECTS[key] = RPA.RPAsystem(n_waters_per_cluster=n_waters_per_cluster)
                 RS = RPA_OBJECTS[key]
                 RS.ff_file = str(force_field_dir / 'cg_ff_GLUd_only.dat')
                 RS.out = 'ARO_GLU'
@@ -498,7 +520,7 @@ def main(input_file="input.in", water_model_override=None):
                 chain_mol_beads = [1 if i =='A' else 2 for i in chain_sequence]
                 res = [data_col for data_col in species_counts_data.values()] # [n_chain1, nHOH, nTMA, nOH]
                 print("Running 100% protonated peptoid chains.")
-                RPA_OBJECTS[key] = RPA.RPAsystem()
+                RPA_OBJECTS[key] = RPA.RPAsystem(n_waters_per_cluster=n_waters_per_cluster)
                 RS = RPA_OBJECTS[key]
                 RS.ff_file = str(force_field_dir / 'cg_ff_GLUd_only.dat')
                 #RS.ff_file = 'force_fields/previous/cg_ff_GLUd_only_prev.dat'
@@ -560,7 +582,7 @@ def main(input_file="input.in", water_model_override=None):
                         chain_mol_beads2[idx] = 3
                 res = [data_col for data_col in species_counts_data.values()] # [n_chain1, n_chain2, nHOH, nTMA, nOH, nH3O]
                 print(f"Running two chain types w/ deprots of {deprot_frac1, deprot_frac2}.")
-                RPA_OBJECTS[key] = RPA.RPAsystem()
+                RPA_OBJECTS[key] = RPA.RPAsystem(n_waters_per_cluster=n_waters_per_cluster)
                 RS = RPA_OBJECTS[key]
                 RS.ff_file = str(force_field_dir / 'cg_ff_GLUd_GLUp.dat')
                 RS.out = 'ARO_GLU'

@@ -35,6 +35,7 @@ def main():
     data_dict = {
         "single": load_spinodals(RPA_RESULTS / "initial_spinodals.txt"),
         "six": load_spinodals(RPA_RESULTS / "initial_spinodals_diblock.txt"),
+        "six-fixed": load_spinodals(RPA_RESULTS / "diblock_ALL_fixed.txt")
     }
 
     plt.scatter(data_dict["single"][0],data_dict["single"][1])
@@ -42,6 +43,9 @@ def main():
 
     plt.scatter(data_dict["six"][0],data_dict["six"][1])
     plt.plot(data_dict["six"][0],data_dict["six"][1], label="Six-waters")
+
+    plt.scatter(data_dict["six-fixed"][0],data_dict["six-fixed"][1])
+    plt.plot(data_dict["six-fixed"][0],data_dict["six-fixed"][1], label="Six-waters FIXED")
 
     plt.xlabel(r"Aromatic composition fraction, $f_A$")
     plt.ylabel(r"Spinodal weight fraction, $w_{poly}^*$")

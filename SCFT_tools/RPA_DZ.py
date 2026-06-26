@@ -18,11 +18,12 @@ from matplotlib import pyplot as plt
 class RPAsystem():
 
 
-	def __init__(self):
+	def __init__(self,n_waters_per_cluster=1):
 		
 		self.ff_file = None # Sim input file
 		self.out = None # output file name
 		self.bondtype = None # specify bondtype as either offset or DGC
+		self.n_waters_per_cluster = n_waters_per_cluster
 
 		# wavenumber discretization
 		self.k_start = 0.0001
@@ -242,15 +243,17 @@ class RPAsystem():
 		return S
 			
 
-	def GetSkInv(self, comp):
+	def GetSkInv(self, comp, n_waters_clustered=1):
 
 		c_chain_density, bead_fractions, rho_species = self.ComputeChainDensity(comp) # c_chain_density = #beads all/vol, bead_fractions = #i beads/#total beads, rho_species = # chains i/vol
 		self.rho_species.append(rho_species)
 
 		S0 = 0.0
 		for j,(molname,graph) in enumerate(self.molgraphs.items()):
-	
-			S0 += c_chain_density * bead_fractions[j] * (1. / len(graph.nodes)) * self.formfactor[molname]
+			if molname == "HOH" or molname == "OH":
+				S0 += c_chain_density * bead_fractions[j] * (1. / len(graph.nodes)) * (n_waters_clustered) * self.formfactor[molname]
+			else:
+				S0 += c_chain_density * bead_fractions[j] * (1. / len(graph.nodes)) * self.formfactor[molname]
 			
 		try:
 			# compute S^-1
@@ -283,7 +286,7 @@ class RPAsystem():
 		stability_status = []
 
 		for i in tqdm(range(len(self.comps)), desc='Composition Points'):
-			det_Sinv, Sinv, ss = self.GetSkInv(self.comps[i])
+			det_Sinv, Sinv, ss = self.GetSkInv(self.comps[i],self.n_waters_per_cluster)
 			stability_status.append(ss)
 		return stability_status
 
